@@ -3,27 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Private Player</title>
+    <title>My Private Player v3</title>
     <style>
         body { font-family: sans-serif; background: #111; color: #fff; text-align: center; padding: 20px; }
-        input { padding: 10px; width: 60%; max-width: 400px; border: none; border-radius: 4px; font-size: 16px; }
-        button { padding: 10px 20px; border: none; background: #ff0000; color: white; border-radius: 4px; cursor: pointer; font-size: 16px; margin-left: 10px; }
-        select { padding: 10px; border-radius: 4px; font-size: 16px; margin-left: 10px; }
+        input { padding: 10px; width: 60%; max-width: 400px; border: none; border-radius: 4px; font-size: 16px; background: #222; color: #fff; }
+        button { padding: 10px 20px; border: none; background: #ff0000; color: white; border-radius: 4px; cursor: pointer; font-size: 16px; margin-left: 10px; font-weight: bold; }
+        button:hover { background: #cc0000; }
+        select { padding: 10px; border-radius: 4px; font-size: 16px; margin-left: 10px; background: #333; color: #fff; border: none; }
         .container { margin-top: 20px; position: relative; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto; }
         .video-wrapper { position: relative; padding-bottom: 56.25%; height: 0; }
-        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px; }
+        .video-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 8px; background: #000; }
+        p { color: #aaa; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h2>Private YouTube Player v2</h2>
-    <p>YouTubeの動画URL、または動画IDを入力してください</p>
-    <input id="urlInput" placeholder="https://youtube.com... または 動画ID">
+    <h2>Private YouTube Player v3</h2>
+    <p>YouTubeの動画URL、または動画ID（例: wCjKEXmY7jk）を入力してください</p>
+    
+    <input id="urlInput" placeholder="動画URL または 動画ID を貼り付け">
     
     <select id="serverSelect">
         <option value="https://piped.video">Piped (標準)</option>
-        <option value="https://mha.fi">Piped (フィンランド)</option>
-        <option value="https://yewtu.be">Invidious (yewtu.be)</option>
-        <option value="https://nerdvpn.de">Invidious (ドイツ)</option>
+        <option value="https://riverside.rocks">Piped (Riverside - 規制対策強化)</option>
+        <option value="https://palpable.dev">Piped (Palpable - 安定版)</option>
+        <option value="https://zzls.xyz">Invidious (zzls - 軽量版)</option>
+        <option value="https://flokinet.to">Invidious (Flokinet - 海外)</option>
     </select>
     
     <button onclick="playVideo()">再生</button>
@@ -40,21 +44,25 @@
             var server = document.getElementById('serverSelect').value;
             var videoId = "";
             
+            // 各種URL形式から動画IDを自動で抽出する処理
             if (input.includes("v=")) {
                 var urlParams = new URLSearchParams(input.substring(input.indexOf('?')));
                 videoId = urlParams.get('v');
             } else if (input.includes("youtu.be/")) {
-                videoId = input.split("youtu.be/")[1].split("?")[0];
+                var parts = input.split("youtu.be/");
+                if (parts[1]) videoId = parts[1].split("?")[0];
             } else if (input.includes("embed/")) {
-                videoId = input.split("embed/")[1].split("?")[0];
+                var parts = input.split("embed/");
+                if (parts[1]) videoId = parts[1].split("?")[0];
             } else {
-                videoId = input;
+                videoId = input; // 直接IDが入力された場合
             }
 
-            if (videoId) {
-                document.getElementById('player').src = server + videoId;
+            if (videoId && videoId.length >= 10) {
+                // YouTube側の最新規制を回避するために、各サーバーのプロキシ再生用パラメータを自動付与して読み込み
+                document.getElementById('player').src = server + videoId + "?local=true&proxy=true&autoplay=1";
             } else {
-                alert("正しいURLか動画IDを入力してください");
+                alert("正しいURLか、11文字の動画IDを入力してください。");
             }
         }
     </script>
